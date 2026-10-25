@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    package="com.zoya.companion">
+
+    <!-- ================================================================= -->
+    <!-- AUDIO & CONTINUOUS VOICE PERMISSIONS                              -->
+    <!-- ================================================================= -->
+    <!-- Required to capture 16kHz PCM audio stream for real-time conversation -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+    <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS" />
+
+    <!-- Android 14+ specific foreground service types -->
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.FOREGROUND_SERVICE_MICROPHONE" />
+
+    <!-- Android 13+ runtime notification permission for persistent ongoing companion status -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
+
+    <!-- Keep CPU alive during continuous background voice interaction -->
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
+
+    <!-- ================================================================= -->
+    <!-- ACCESSIBILITY & UI AUTOMATION PERMISSIONS                         -->
+    <!-- ================================================================= -->
+    <!-- Binds to ZoyaAccessibilityService for clicking, scrolling, and reading screen nodes -->
+    <!-- Note: User must manually enable this in Android Settings > Accessibility -->
+
+    <!-- ================================================================= -->
+    <!-- SYSTEM OVERLAYS & POCKET MODE                                     -->
+    <!-- ================================================================= -->
+    <!-- Draws the Touch Guard pocket mode protection layer and active click indicators -->
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
+
+    <!-- ================================================================= -->
+    <!-- EMERGENCY SOS & COMMUNICATION                                     -->
+    <!-- ================================================================= -->
+    <!-- Sends emergency SMS with GPS coordinates if Usman triggers voice SOS -->
+    <uses-permission android:name="android.permission.SEND_SMS" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- ================================================================= -->
+    <!-- BOOT & NETWORK                                                    -->
+    <!-- ================================================================= -->
+    <!-- Optional auto-restart on device reboot if enabled in Settings -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
+    <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
+
+    <!-- Exempt from aggressive OEM background battery killers (with user consent) -->
+    <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
+
+    <application
+        android:name=".ZoyaCompanionApplication"
+        android:allowBackup="false"
+        android:icon="@mipmap/ic_launcher"
+        android:label="Zoya AI Companion"
+        android:roundIcon="@mipmap/ic_launcher_round"
+        android:supportsRtl="true"
+        android:theme="@style/Theme.ZoyaCompanion">
+
+        <!-- Main Compose Activity -->
+        <activity
+            android:name=".ui.MainActivity"
+            android:exported="true"
+            android:theme="@style/Theme.ZoyaCompanion">
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
+        </activity>
+
+        <!-- Continuous Voice Foreground Service -->
+        <service
+            android:name=".service.ZoyaVoiceForegroundService"
+            android:enabled="true"
+            android:exported="false"
+            android:foregroundServiceType="microphone" />
+
+        <!-- UI Automation Accessibility Service -->
+        <service
+            android:name=".accessibility.ZoyaAccessibilityService"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/accessibility_service_config" />
+        </service>
+
+        <!-- Notification Listener Service for WhatsApp/SMS Triage -->
+        <service
+            android:name=".notifications.ZoyaNotificationListenerService"
+            android:label="Zoya Notification Triage"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
+        </service>
+
+        <!-- Boot Receiver -->
+        <receiver
+            android:name=".receivers.ZoyaBootReceiver"
+            android:enabled="true"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
+                <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
+            </intent-filter>
+        </receiver>
+
+    </application>
+
+</manifest>

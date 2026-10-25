@@ -1,0 +1,128 @@
+{
+  "entities": {
+    "userProfile": {
+      "title": "UserProfile",
+      "description": "User profile, companion settings, and active mode preferences",
+      "type": "object",
+      "properties": {
+        "userName": {
+          "type": "string",
+          "description": "User's preferred display name"
+        },
+        "assistantName": {
+          "type": "string",
+          "description": "Companion assistant name (Zoya)"
+        },
+        "voiceName": {
+          "type": "string",
+          "description": "Selected voice persona (e.g. Kore)"
+        },
+        "activeTheme": {
+          "type": "string",
+          "description": "Active theme id from 10 locked themes"
+        },
+        "activeMode": {
+          "type": "string",
+          "description": "Current companion interaction mode"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Last profile update timestamp"
+        }
+      },
+      "required": ["userName", "assistantName"]
+    },
+    "chatMessage": {
+      "title": "ChatMessage",
+      "description": "Single conversational message exchanged with Zoya",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the message"
+        },
+        "sender": {
+          "type": "string",
+          "enum": ["user", "zoya"],
+          "description": "Sender role"
+        },
+        "text": {
+          "type": "string",
+          "description": "Content of the message"
+        },
+        "mode": {
+          "type": "string",
+          "description": "Active companion mode during message transmission"
+        },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Message creation timestamp"
+        }
+      },
+      "required": ["id", "sender", "text", "timestamp"]
+    },
+    "agentTask": {
+      "title": "AgentTask",
+      "description": "Background task or content creation pipeline entry",
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique task identifier"
+        },
+        "title": {
+          "type": "string",
+          "description": "Human-readable task title"
+        },
+        "description": {
+          "type": "string",
+          "description": "Task summary and execution prompt"
+        },
+        "status": {
+          "type": "string",
+          "description": "Task status (queued, running, waiting_approval, completed, failed)"
+        },
+        "priority": {
+          "type": "string",
+          "description": "Task priority level (low, normal, high)"
+        },
+        "progressPercent": {
+          "type": "number",
+          "description": "Task completion percentage"
+        },
+        "currentStep": {
+          "type": "string",
+          "description": "Description of current execution step"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Task creation timestamp"
+        }
+      },
+      "required": ["id", "title", "status", "createdAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": {
+        "$ref": "#/entities/userProfile"
+      },
+      "description": "User profile document storing personal assistant settings"
+    },
+    "/users/{userId}/messages/{messageId}": {
+      "schema": {
+        "$ref": "#/entities/chatMessage"
+      },
+      "description": "Subcollection of chat messages for user conversation history"
+    },
+    "/users/{userId}/tasks/{taskId}": {
+      "schema": {
+        "$ref": "#/entities/agentTask"
+      },
+      "description": "Subcollection of agent tasks and human approval pipelines"
+    }
+  }
+}
